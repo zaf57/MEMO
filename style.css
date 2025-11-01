@@ -1,1 +1,15 @@
-CSS
+/* Animation de disparition */
+.fade-out {
+  animation: fadeOut 0.4s forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+}
