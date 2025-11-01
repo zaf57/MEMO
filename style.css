@@ -40,3 +40,7 @@ body {
     --tw-bg-opacity: 1;
     background-color: rgb(234 88 12 / var(--tw-bg-opacity, 1));
 }
+
+.mb-6 {
+    margin-bottom: -0.5rem;
+}
