@@ -1,1 +1,150 @@
-MEMO SITE
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>🧠 MEMO</title>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center p-6">
+
+  <div class="bg-white/90 rounded-2xl shadow-xl p-6 max-w-md w-full backdrop-blur">
+    <h1 class="text-3xl font-bold text-center mb-6 text-emerald-700">🧠 MEMO</h1>
+
+    <div class="flex flex-col items-center gap-3 mb-4">
+      <button id="voiceBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg">
+        🎙️ Ajouter une tâche
+      </button>
+      <button id="readList" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg">
+        🔊 Lire les tâches
+      </button>
+      <p id="status" class="text-sm text-gray-600 mt-2 text-center">Dis par exemple : “Ajoute arroser les plantes”</p>
+      <p id="result" class="text-green-700 font-semibold text-center"></p>
+    </div>
+
+    <div id="taskList" class="space-y-2">
+      <div class="text-gray-400 text-center">Chargement...</div>
+    </div>
+  </div>
+
+  <script>
+    // URL de ton Google Apps Script
+    const scriptURL = "https://script.google.com/macros/s/TON_SCRIPT_URL/exec";
+    const taskList = document.getElementById("taskList");
+    const result = document.getElementById("result");
+    const status = document.getElementById("status");
+    const voiceBtn = document.getElementById("voiceBtn");
+
+    // 🔊 Synthèse vocale
+    function speak(text) {
+      if (!("speechSynthesis" in window)) return;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "fr-FR";
+      utter.rate = 1;
+      window.speechSynthesis.speak(utter);
+    }
+
+    // 📋 Charger la liste depuis la Google Sheet
+    async function loadList() {
+      try {
+        const res = await fetch(scriptURL);
+        const data = await res.json();
+        taskList.innerHTML = "";
+
+        if (!data || data.length === 0) {
+          taskList.innerHTML = "<div class='text-gray-500 text-center'>Aucune tâche</div>";
+          return;
+        }
+
+        data.forEach(row => {
+          if (row.tache) {
+            const div = document.createElement("div");
+            div.className = "flex justify-between items-center bg-gray-100 p-2 rounded-lg";
+            div.innerHTML = `
+              <span>${row.tache}</span>
+              <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
+            `;
+            taskList.appendChild(div);
+          }
+        });
+
+        document.querySelectorAll(".delete-btn").forEach(btn => {
+          btn.addEventListener("click", async e => {
+            const id = e.target.getAttribute("data-id");
+            await deleteTask(id);
+          });
+        });
+      } catch {
+        taskList.innerHTML = "<div class='text-red-500 text-center'>Erreur de chargement</div>";
+      }
+    }
+
+    // ❌ Supprimer une tâche
+    async function deleteTask(id) {
+      try {
+        await fetch(scriptURL, {
+          method: "POST",
+          body: JSON.stringify({ action: "delete", id: Number(id) })
+        });
+        new Audio("recycle-bin.mp3").play();
+        loadList();
+      } catch {
+        alert("Erreur lors de la suppression");
+      }
+    }
+
+    // 🎤 Reconnaissance vocale
+    voiceBtn.addEventListener("click", () => {
+      if (!("webkitSpeechRecognition" in window)) {
+        alert("La reconnaissance vocale n'est pas supportée sur ce navigateur (utilise Chrome).");
+        return;
+      }
+
+      const rec = new webkitSpeechRecognition();
+      rec.lang = "fr-FR";
+      rec.start();
+      status.textContent = "🎧 J'écoute...";
+
+      rec.onresult = async (ev) => {
+        const phrase = ev.results[0][0].transcript;
+        status.textContent = "🗣️ " + phrase;
+        try {
+          const res = await fetch(scriptURL, {
+            method: "POST",
+            body: JSON.stringify({ action: "add", tache: phrase })
+          });
+          const json = await res.json();
+          if (json.ok) {
+            result.textContent = "Tâche ajoutée ✅";
+            speak("Tâche ajoutée");
+            loadList();
+          } else {
+            result.textContent = "Erreur serveur.";
+          }
+        } catch {
+          result.textContent = "Erreur réseau.";
+        }
+      };
+
+      rec.onerror = () => {
+        status.textContent = "❌ Erreur de reconnaissance vocale";
+      };
+    });
+
+    // 🔊 Lecture vocale de la liste
+    async function readList() {
+      const res = await fetch(scriptURL);
+      const data = await res.json();
+      if (!data || data.length === 0) {
+        speak("Aucune tâche à lire");
+        return;
+      }
+
+      let phrase = "Voici vos tâches : ";
+      data.forEach(row => phrase += row.tache + ", ");
+      speak(phrase);
+    }
+
+    document.getEleme
