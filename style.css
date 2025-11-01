@@ -22,6 +22,16 @@ body {
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
+.new-task {
+  animation: pop 0.4s ease;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+
 @keyframes fadeOut {
   0% {
     opacity: 1;
