@@ -13,3 +13,13 @@
     transform: translateX(-50px);
   }
 }
+
+.bg-emerald-600 {
+    --tw-bg-opacity: 1;
+    background-color: rgb(88 202 123);
+}
+
+.bg-orange-600 {
+    --tw-bg-opacity: 1;
+    background-color: rgb(234 88 12 / var(--tw-bg-opacity, 1));
+}
