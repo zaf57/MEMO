@@ -33,12 +33,12 @@ body {
 
 .bg-emerald-600 {
     --tw-bg-opacity: 1;
-    background-color: rgb(88 202 123);
+    background-color: rgb(87 201 122); 
 }
 
 .bg-orange-600 {
     --tw-bg-opacity: 1;
-    background-color: rgb(234 88 12 / var(--tw-bg-opacity, 1));
+    background-color: rgb(254 126 100 / var(--tw-bg-opacity, 1));
 }
 
 .bg-gray-100 {
