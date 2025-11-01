@@ -30,8 +30,9 @@
   </div>
 
   <script>
-    // URL de ton Google Apps Script
-    const scriptURL = "https://script.google.com/macros/s/TON_SCRIPT_URL/exec";
+    // ✅ Ton Google Apps Script
+    const scriptURL = "https://script.google.com/macros/s/AKfycbya9gXDKbOcvnbb37zceiXEFREyLzqeLadgQCt2gVCltyZbW1XUtUx59EDKJ_L4IL3--w/exec";
+
     const taskList = document.getElementById("taskList");
     const result = document.getElementById("result");
     const status = document.getElementById("status");
@@ -147,4 +148,9 @@
       speak(phrase);
     }
 
-    document.getEleme
+    document.getElementById("readList").addEventListener("click", readList);
+    loadList();
+    //setInterval(loadList, 5000); 
+  </script>
+</body>
+</html>   
