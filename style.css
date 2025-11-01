@@ -17,7 +17,9 @@ body {
 
 /* Animation de disparition */
 .fade-out {
-  animation: fadeOut 0.4s forwards;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 @keyframes fadeOut {
