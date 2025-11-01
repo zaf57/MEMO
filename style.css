@@ -44,3 +44,46 @@ body {
 .mb-6 {
     margin-bottom: -0.5rem;
 }
+
+/* Animation d’apparition + pulsation */
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+    filter: blur(4px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05);
+    filter: blur(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.4));
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0));
+  }
+}
+
+#MEMOtransp {
+  animation: fadeInScale 1s ease-out forwards, pulse 3s infinite ease-in-out;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+/* petit rebond au clic */
+#MEMOtransp:active {
+  transform: scale(0.95);
+}
