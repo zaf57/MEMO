@@ -41,6 +41,11 @@ body {
     background-color: rgb(234 88 12 / var(--tw-bg-opacity, 1));
 }
 
+.bg-gray-100 {
+    --tw-bg-opacity: 1;
+    background-color: #05966936;
+}
+
 .mb-6 {
     margin-bottom: -0.5rem;
 }
