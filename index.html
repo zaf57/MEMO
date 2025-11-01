@@ -46,7 +46,7 @@
 
   <script>
     // ✅ Ton Google Apps Script
-    const scriptURL = "https://script.google.com/macros/s/AKfycbya9gXDKbOcvnbb37zceiXEFREyLzqeLadgQCt2gVCltyZbW1XUtUx59EDKJ_L4IL3--w/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbz7vZVCFMcx1TYLXoYRd8_9rSrT5P2ZBXE5GLcGi527lkVhnt0MB65U44b9oby6TXD0xQ/exec";
 
     const taskList = document.getElementById("taskList");
     const result = document.getElementById("result");
@@ -82,9 +82,10 @@
             const div = document.createElement("div");
             div.className = "flex justify-between items-center bg-gray-100 p-2 rounded-lg";
             div.innerHTML = `
-              <span>${row.tache}</span>
-              <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
-            `;
+  <span><strong class="text-gray-600">${row.date}</strong> — ${row.tache}</span>
+  <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
+`;
+
             taskList.appendChild(div);
           }
         });
