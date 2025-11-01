@@ -1,3 +1,20 @@
+body {
+    background: url();
+    font-family: "Inter", sans-serif;
+}
+    /* 🖼️ Fond ZAF */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url("MEMO.png") center/cover no-repeat;
+      filter: blur(6px) brightness(0.7);
+      z-index: -1;
+    }
+
 /* Animation de disparition */
 .fade-out {
   animation: fadeOut 0.4s forwards;
