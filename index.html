@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+
   <title>🧠 MEMO</title>
 
   <link rel="stylesheet" href="style.css">
@@ -12,6 +13,9 @@
 
   <div class="bg-white/90 rounded-2xl shadow-xl p-6 max-w-md w-full backdrop-blur">
     <h1 class="text-3xl font-bold text-center mb-6 text-emerald-700">🧠 MEMO</h1>
+    
+     <!-- Date d'aujourd'hui -->
+  <p id="todayDate" class="text-center text-gray-600 mb-4"></p>
 
     <div class="flex flex-col items-center gap-3 mb-4">
       <button id="voiceBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg">
@@ -26,7 +30,7 @@
 
     <div id="taskList" class="space-y-2">
       <div class="text-gray-400 text-center">Chargement...</div>
-    </div>
+    </div> 
   </div>
 
   <script>
@@ -83,18 +87,28 @@
     }
 
     // ❌ Supprimer une tâche
-    async function deleteTask(id) {
-      try {
-        await fetch(scriptURL, {
-          method: "POST",
-          body: JSON.stringify({ action: "delete", id: Number(id) })
-        });
-        new Audio("recycle-bin.mp3").play();
-        loadList();
-      } catch {
-        alert("Erreur lors de la suppression");
-      }
+ async function deleteTask(id) {
+  const itemDiv = document.querySelector(`.delete-btn[data-id="${id}"]`)?.closest(".flex");
+  if (!itemDiv) return;
+
+  // Ajouter l'animation
+  itemDiv.classList.add("fade-out");
+
+  // Supprimer la ligne après la fin de l'animation
+  setTimeout(async () => {
+    try {
+      await fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify({ action: "delete", id: Number(id) })
+      });
+      new Audio("recycle-bin.mp3").play();
+      loadList(); // recharge la liste
+    } catch {
+      alert("Erreur lors de la suppression");
     }
+  }, 400); // durée = 0.4s pour correspondre à l'animation
+}
+
 
     // 🎤 Reconnaissance vocale
     voiceBtn.addEventListener("click", () => {
@@ -150,7 +164,13 @@
 
     document.getElementById("readList").addEventListener("click", readList);
     loadList();
-    //setInterval(loadList, 5000); 
+    //setInterval(loadList, 5000);
+    
+      // Afficher la date du jour
+  const today = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById("todayDate").textContent = today.toLocaleDateString('fr-FR', options);
+ 
   </script>
 </body>
 </html>   
