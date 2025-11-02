@@ -1,1 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MEMO</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/x-icon" href="MEMO.ico" />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+.fade-out { 
+  opacity: 0; 
+  transition: opacity 0.4s ease-out; 
+}
+</style>
+</head>
 
+<body class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center p-6">
+
+<p id="todayDate" class="text-center text-gray-600 mb-4" style="color: white;"></p>
+
+<div class="bg-white/90 rounded-2xl shadow-xl p-6 max-w-md w-full backdrop-blur" style="background-color: rgb(255, 245, 229);">
+
+  <div class="flex justify-center mt-8">
+    <img id="MEMOtransp" src="MEMOtransp.png" alt="Logo MEMO" class="w-32 h-32">
+  </div>
+
+  <div class="flex flex-col items-center gap-3 mb-4">
+    <button id="voiceBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg">
+      🎙️ Ajouter une tâche
+    </button>
+    <button id="readList" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg">
+      🔊 Lire les tâches
+    </button>
+    <p id="status" class="text-sm text-gray-600 mt-2 text-center">Dis par exemple : “Ajoute arroser les plantes”</p>
+    <p id="result" class="text-green-700 font-semibold text-center"></p>
+  </div>
+
+  <div id="taskList" class="space-y-2">
+    <div class="text-gray-400 text-center">Chargement...</div>
+  </div> 
+</div>
+
+<script>
+const scriptURL = "https://script.google.com/macros/s/AKfycbxYkrvgyLHexjBk9v0sHW0v7XrRc_UPZAIee-2Wcauq8zSfuNJraBZf7TyU9BDI6LPk7Q/exec";
+const proxy = "https://cors-anywhere.herokuapp.com/"; // Proxy pour contourner CORS
+const taskList = document.getElementById("taskList");
+const result = document.getElementById("result");
+const status = document.getElementById("status");
+const voiceBtn = document.getElementById("voiceBtn");
+
+function speak(text){
+  if(!("speechSynthesis" in window)) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang="fr-FR";
+  utter.rate=1;
+  window.speechSynthesis.speak(utter);
+}
+
+async function loadList(){
+  try {
+    const res = await fetch(proxy + scriptURL);
+    const data = await res.json();
+    taskList.innerHTML = "";
+    if(!data || data.length === 0){
+      taskList.innerHTML = "<div class='text-gray-500 text-center'>Aucune tâche</div>";
+      return;
+    }
+    data.forEach(row=>{
+      if(row.tache){
+        const div = document.createElement("div");
+        div.className="flex justify-between items-center bg-gray-100 p-2 rounded-lg";
+        div.innerHTML=`
+          <span><strong class="text-gray-600">${row.date}</strong> — ${row.tache}</span>
+          <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
+        `;
+        taskList.appendChild(div);
+      }
+    });
+    document.querySelectorAll(".delete-btn").forEach(btn=>{
+      btn.addEventListener("click", async e=>{
+        const id = Number(e.target.getAttribute("data-id"));
+        await deleteTask(id);
+      });
+    });
+  } catch(err){
+    taskList.innerHTML="<div class='text-red-500 text-center'>Erreur de chargement</div>";
+    console.error(err);
+  }
+}
+
+async function deleteTask(id){
+  const itemDiv = document.querySelector(`.delete-btn[data-id="${id}"]`)?.closest("div");
+  if(!itemDiv) return;
+  itemDiv.classList.add("fade-out");
+  setTimeout(async ()=>{
+    try{
+      const res = await fetch(proxy + scriptURL,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({action:"delete",id})
+      });
+      const json = await res.json();
+      if(!json.ok) alert("Erreur côté serveur : "+(json.error||"unknown"));
+      new Audio("recycle-bin.mp3").play();
+      loadList();
+    }catch(err){
+      alert("Erreur réseau : "+err.message);
+    }
+  },400);
+}
+
+voiceBtn.addEventListener("click", ()=>{
+  if(!("webkitSpeechRecognition" in window)){
+    alert("La reconnaissance vocale n'est pas supportée sur ce navigateur (Chrome requis).");
+    return;
+  }
+  const rec = new webkitSpeechRecognition();
+  rec.lang="fr-FR";
+  rec.start();
+  status.textContent="🎧 J'écoute...";
+  rec.onresult=async ev=>{
+    const phrase = ev.results[0][0].transcript;
+    status.textContent="🗣️ "+phrase;
+    try{
+      const res = await fetch(proxy + scriptURL,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({action:"add",tache:phrase})
+      });
+      const json = await res.json();
+      if(json.ok){
+        result.textContent="Tâche ajoutée ✅";
+        speak("Tâche ajoutée");
+        loadList();
+      } else result.textContent="Erreur serveur : "+(json.error||"");
+    }catch(err){
+      result.textContent="Erreur réseau : "+err.message;
+    }
+  };
+  rec.onerror=()=>{status.textContent="❌ Erreur de reconnaissance vocale";};
+});
+
+document.getElementById("readList").addEventListener("click", async ()=>{
+  try{
+    const res = await fetch(proxy + scriptURL);
+    const data = await res.json();
+    if(!data || data.length===0){speak("Aucune tâche à lire");return;}
+    let phrase="Voici vos tâches : ";
+    data.forEach(row=>phrase+=row.tache+", ");
+    speak(phrase);
+  }catch{ speak("Erreur lors de la lecture"); }
+});
+
+// Date du jour
+const today = new Date();
+const options={weekday:'long',year:'numeric',month:'long',day:'numeric'};
+document.getElementById("todayDate").textContent=today.toLocaleDateString('fr-FR',options);
+
+loadList();
+</script>
+
+</body>
+</html>
