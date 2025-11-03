@@ -20,18 +20,13 @@
 <p id="todayDate" class="text-center text-gray-600 mb-4" style="color: white;"></p>
 
 <div class="bg-white/90 rounded-2xl shadow-xl p-6 max-w-md w-full backdrop-blur" style="background-color: rgb(255, 245, 229);">
-
-  <div class="flex justify-center mt-8" style="margin-top: 1px;">
+  <div class="flex justify-center mt-8">
     <img id="MEMOtransp" src="MEMOtransp.png" alt="Logo MEMO" class="w-32 h-32">
   </div>
 
   <div class="flex flex-col items-center gap-3 mb-4">
-    <button id="voiceBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg">
-      🎙️ Ajouter une tâche
-    </button>
-    <button id="readList" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg">
-      🔊 Lire les tâches
-    </button>
+    <button id="voiceBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg">🎙️ Ajouter une tâche</button>
+    <button id="readList" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg">🔊 Lire les tâches</button>
     <p id="status" class="text-sm text-gray-600 mt-2 text-center">Dis par exemple : “Ajoute arroser les plantes”</p>
     <p id="result" class="text-green-700 font-semibold text-center"></p>
   </div>
@@ -42,8 +37,7 @@
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbxv3fBRP83q4iZYZftzhtjBsdpMzUEVDdD13rZtCXXJ0DIRjQl49sfBp2BIA-joKZ7y_Q/exec";
-const proxy = "https://cors-anywhere.herokuapp.com/"; 
+const scriptURL = "https://script.google.com/macros/s/AKfycbwe0ijNVIGxha5SW3OWpk8uBYMHCAqEOSwV0Io-CgIOzL-KIgBHgse0NCiXds1ATWO8dQ/exec";
 const taskList = document.getElementById("taskList");
 const result = document.getElementById("result");
 const status = document.getElementById("status");
@@ -59,7 +53,7 @@ function speak(text){
 
 async function loadList(){
   try {
-    const res = await fetch(proxy + scriptURL);
+    const res = await fetch(scriptURL);
     const data = await res.json();
     taskList.innerHTML = "";
     if(!data || data.length === 0){
@@ -67,16 +61,15 @@ async function loadList(){
       return;
     }
     data.forEach(row=>{
-      if(row.tache){
-        const div = document.createElement("div");
-        div.className="flex justify-between items-center bg-gray-100 p-2 rounded-lg";
-        div.innerHTML=`
-          <span>${row.tache}</span>
-          <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
-        `;
-        taskList.appendChild(div);
-      }
+      const div = document.createElement("div");
+      div.className="flex justify-between items-center bg-gray-100 p-2 rounded-lg";
+      div.innerHTML=`
+        <span>${row.tache}</span>
+        <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
+      `;
+      taskList.appendChild(div);
     });
+
     document.querySelectorAll(".delete-btn").forEach(btn=>{
       btn.addEventListener("click", async e=>{
         const id = Number(e.target.getAttribute("data-id"));
@@ -95,14 +88,12 @@ async function deleteTask(id){
   itemDiv.classList.add("fade-out");
   setTimeout(async ()=>{
     try{
-      const res = await fetch(proxy + scriptURL,{
+      const res = await fetch(scriptURL, {
         method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({action:"delete",id})
+        body: JSON.stringify({action:"delete", id})
       });
       const json = await res.json();
-      if(!json.ok) alert("Erreur côté serveur : "+(json.error||"unknown"));
-      new Audio("recycle-bin.mp3").play();
+      if(!json.ok) alert("Erreur serveur : "+(json.error||""));
       loadList();
     }catch(err){
       alert("Erreur réseau : "+err.message);
@@ -123,10 +114,9 @@ voiceBtn.addEventListener("click", ()=>{
     const phrase = ev.results[0][0].transcript;
     status.textContent="🗣️ "+phrase;
     try{
-      const res = await fetch(proxy + scriptURL,{
+      const res = await fetch(scriptURL, {
         method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({action:"add",tache:phrase})
+        body: JSON.stringify({action:"add", tache: phrase})
       });
       const json = await res.json();
       if(json.ok){
@@ -143,7 +133,7 @@ voiceBtn.addEventListener("click", ()=>{
 
 document.getElementById("readList").addEventListener("click", async ()=>{
   try{
-    const res = await fetch(proxy + scriptURL);
+    const res = await fetch(scriptURL);
     const data = await res.json();
     if(!data || data.length===0){speak("Aucune tâche à lire");return;}
     let phrase="Voici vos tâches : ";
@@ -152,10 +142,7 @@ document.getElementById("readList").addEventListener("click", async ()=>{
   }catch{ speak("Erreur lors de la lecture"); }
 });
 
-// Date du jour
-const today = new Date();
-const options={weekday:'long',year:'numeric',month:'long',day:'numeric'};
-document.getElementById("todayDate").textContent=today.toLocaleDateString('fr-FR',options);
+document.getElementById("todayDate").textContent = new Date().toLocaleDateString('fr-FR', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
 
 loadList();
 </script>
