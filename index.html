@@ -100,6 +100,8 @@ async function deleteTask(id){
       });
       const json = await res.json();
       if(!json.ok) alert("Erreur serveur : "+(json.error||""));
+       // Jouer le son de suppression
+      new Audio("recycle-bin.mp3").play();
       loadList();
     }catch(err){
       alert("Erreur réseau : "+err.message);
