@@ -145,7 +145,7 @@ voiceBtn.addEventListener("click", ()=>{
 
 document.getElementById("readList").addEventListener("click", async ()=>{
   try{
-    //const res = await fetch(proxy + scriptURL);
+    const res = await fetch(proxy + scriptURL);
     const data = await res.json();
     if(!data || data.length===0){speak("Aucune tâche à lire");return;}
     let phrase="Voici vos tâches : ";
