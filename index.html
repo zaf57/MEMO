@@ -21,9 +21,7 @@
 
 <div class="bg-white/90 rounded-2xl shadow-xl p-6 max-w-md w-full backdrop-blur" style="background-color: rgb(255, 245, 229);">
 
-  <div class="flex justify-center mt-8" style="
-    margin-top: 1px;
-">
+  <div class="flex justify-center mt-8" style="margin-top: 1px;">
     <img id="MEMOtransp" src="MEMOtransp.png" alt="Logo MEMO" class="w-32 h-32">
   </div>
 
@@ -45,7 +43,7 @@
 
 <script>
 const scriptURL = "https://script.google.com/macros/s/AKfycbxYkrvgyLHexjBk9v0sHW0v7XrRc_UPZAIee-2Wcauq8zSfuNJraBZf7TyU9BDI6LPk7Q/exec";
-const proxy = "https://cors-anywhere.herokuapp.com/"; // Proxy pour contourner CORS
+const proxy = "https://cors-anywhere.herokuapp.com/"; 
 const taskList = document.getElementById("taskList");
 const result = document.getElementById("result");
 const status = document.getElementById("status");
@@ -73,7 +71,7 @@ async function loadList(){
         const div = document.createElement("div");
         div.className="flex justify-between items-center bg-gray-100 p-2 rounded-lg";
         div.innerHTML=`
-          <span><strong class="text-gray-600">${row.date}</strong> — ${row.tache}</span>
+          <span>${row.tache}</span>
           <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
         `;
         taskList.appendChild(div);
