@@ -64,12 +64,13 @@ async function loadList(){
       return;
     }
     data.forEach(row=>{
-  if(row.tache){
-    const div = document.createElement("div");
-    div.className="flex justify-between items-center bg-gray-100 p-2 rounded-lg";
-    div.innerHTML=`
-  <span>✅ ${row.tache} <span class="text-gray-400 text-sm">(${day}/${month})</span></span>
-  <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
+      if(row.tache){
+        const div = document.createElement("div");
+        div.className="flex justify-between items-center bg-gray-100 p-2 rounded-lg";
+        div.style.backgroundColor = "#04785730"; // <-- couleur personnalisée
+        div.innerHTML=`
+           <span>✅ ${row.tache} <span class="text-gray-400 text-sm">(${day}/${month})</span></span>
+           <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
 `;
     taskList.appendChild(div);
   }
