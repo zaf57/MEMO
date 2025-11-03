@@ -1,5 +1,5 @@
 
-vesion stable sans date sur les taches
+vesion stable avec dates sur les taches
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -45,6 +45,9 @@ const taskList = document.getElementById("taskList");
 const result = document.getElementById("result");
 const status = document.getElementById("status");
 const voiceBtn = document.getElementById("voiceBtn");
+const today = new Date();
+const day = today.getDate();
+const month = today.getMonth() + 1; // Mois de 0 à 11
 
 function speak(text){
   if(!("speechSynthesis" in window)) return;
@@ -64,14 +67,16 @@ async function loadList(){
       return;
     }
     data.forEach(row=>{
-      const div = document.createElement("div");
-      div.className="flex justify-between items-center bg-gray-100 p-2 rounded-lg";
-      div.innerHTML=`
-        <span>${row.tache}</span>
-        <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
-      `;
-      taskList.appendChild(div);
-    });
+  if(row.tache){
+    const div = document.createElement("div");
+    div.className="flex justify-between items-center bg-gray-100 p-2 rounded-lg";
+    div.innerHTML=`
+  <span>✅ ${row.tache} <span class="text-gray-400 text-sm">(${day}/${month})</span></span>
+  <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
+`;
+    taskList.appendChild(div);
+  }
+});
 
     document.querySelectorAll(".delete-btn").forEach(btn=>{
       btn.addEventListener("click", async e=>{
@@ -148,6 +153,11 @@ document.getElementById("readList").addEventListener("click", async ()=>{
 document.getElementById("todayDate").textContent = new Date().toLocaleDateString('fr-FR', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
 
 loadList();
+</script>
+
+</body>
+</html>
+
 
 
 APP SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
