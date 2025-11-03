@@ -1,3 +1,6 @@
+
+vesion stable sans date sur les taches
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -20,18 +23,13 @@
 <p id="todayDate" class="text-center text-gray-600 mb-4" style="color: white;"></p>
 
 <div class="bg-white/90 rounded-2xl shadow-xl p-6 max-w-md w-full backdrop-blur" style="background-color: rgb(255, 245, 229);">
-
   <div class="flex justify-center mt-8">
     <img id="MEMOtransp" src="MEMOtransp.png" alt="Logo MEMO" class="w-32 h-32">
   </div>
 
   <div class="flex flex-col items-center gap-3 mb-4">
-    <button id="voiceBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg">
-      🎙️ Ajouter une tâche
-    </button>
-    <button id="readList" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg">
-      🔊 Lire les tâches
-    </button>
+    <button id="voiceBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg">🎙️ Ajouter une tâche</button>
+    <button id="readList" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg">🔊 Lire les tâches</button>
     <p id="status" class="text-sm text-gray-600 mt-2 text-center">Dis par exemple : “Ajoute arroser les plantes”</p>
     <p id="result" class="text-green-700 font-semibold text-center"></p>
   </div>
@@ -42,8 +40,7 @@
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbxYkrvgyLHexjBk9v0sHW0v7XrRc_UPZAIee-2Wcauq8zSfuNJraBZf7TyU9BDI6LPk7Q/exec";
-const proxy = "https://cors-anywhere.herokuapp.com/"; // Proxy pour contourner CORS
+const scriptURL = "https://script.google.com/macros/s/AKfycbwe0ijNVIGxha5SW3OWpk8uBYMHCAqEOSwV0Io-CgIOzL-KIgBHgse0NCiXds1ATWO8dQ/exec";
 const taskList = document.getElementById("taskList");
 const result = document.getElementById("result");
 const status = document.getElementById("status");
@@ -59,7 +56,7 @@ function speak(text){
 
 async function loadList(){
   try {
-    const res = await fetch(proxy + scriptURL);
+    const res = await fetch(scriptURL);
     const data = await res.json();
     taskList.innerHTML = "";
     if(!data || data.length === 0){
@@ -67,16 +64,15 @@ async function loadList(){
       return;
     }
     data.forEach(row=>{
-      if(row.tache){
-        const div = document.createElement("div");
-        div.className="flex justify-between items-center bg-gray-100 p-2 rounded-lg";
-        div.innerHTML=`
-          <span><strong class="text-gray-600">${row.date}</strong> — ${row.tache}</span>
-          <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
-        `;
-        taskList.appendChild(div);
-      }
+      const div = document.createElement("div");
+      div.className="flex justify-between items-center bg-gray-100 p-2 rounded-lg";
+      div.innerHTML=`
+        <span>${row.tache}</span>
+        <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
+      `;
+      taskList.appendChild(div);
     });
+
     document.querySelectorAll(".delete-btn").forEach(btn=>{
       btn.addEventListener("click", async e=>{
         const id = Number(e.target.getAttribute("data-id"));
@@ -95,14 +91,12 @@ async function deleteTask(id){
   itemDiv.classList.add("fade-out");
   setTimeout(async ()=>{
     try{
-      const res = await fetch(proxy + scriptURL,{
+      const res = await fetch(scriptURL, {
         method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({action:"delete",id})
+        body: JSON.stringify({action:"delete", id})
       });
       const json = await res.json();
-      if(!json.ok) alert("Erreur côté serveur : "+(json.error||"unknown"));
-      new Audio("recycle-bin.mp3").play();
+      if(!json.ok) alert("Erreur serveur : "+(json.error||""));
       loadList();
     }catch(err){
       alert("Erreur réseau : "+err.message);
@@ -123,10 +117,9 @@ voiceBtn.addEventListener("click", ()=>{
     const phrase = ev.results[0][0].transcript;
     status.textContent="🗣️ "+phrase;
     try{
-      const res = await fetch(proxy + scriptURL,{
+      const res = await fetch(scriptURL, {
         method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({action:"add",tache:phrase})
+        body: JSON.stringify({action:"add", tache: phrase})
       });
       const json = await res.json();
       if(json.ok){
@@ -143,7 +136,7 @@ voiceBtn.addEventListener("click", ()=>{
 
 document.getElementById("readList").addEventListener("click", async ()=>{
   try{
-    const res = await fetch(proxy + scriptURL);
+    const res = await fetch(scriptURL);
     const data = await res.json();
     if(!data || data.length===0){speak("Aucune tâche à lire");return;}
     let phrase="Voici vos tâches : ";
@@ -152,12 +145,75 @@ document.getElementById("readList").addEventListener("click", async ()=>{
   }catch{ speak("Erreur lors de la lecture"); }
 });
 
-// Date du jour
-const today = new Date();
-const options={weekday:'long',year:'numeric',month:'long',day:'numeric'};
-document.getElementById("todayDate").textContent=today.toLocaleDateString('fr-FR',options);
+document.getElementById("todayDate").textContent = new Date().toLocaleDateString('fr-FR', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
 
 loadList();
+
+
+APP SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+function getTasks() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Taches");
+  const data = sheet.getDataRange().getValues();
+  data.shift(); // retire l'entête
+  return data.map(r => ({
+    id: r[0],
+    tache: r[1]
+  }));
+}
+
+function addTask(tache) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Taches");
+  const lastRow = sheet.getLastRow();
+  const newId = lastRow >= 2 ? sheet.getRange(lastRow, 1).getValue() + 1 : 1;
+  sheet.appendRow([newId, tache]);
+  return { ok: true };
+}
+
+function deleteTask(id) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Taches");
+  const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) {
+    if (values[i][0] == id) {
+      sheet.deleteRow(i + 1);
+      return { ok: true };
+    }
+  }
+  return { ok: false, error: "id not found" };
+}
+
+function doGet(e) {
+  const tasks = getTasks();
+  return ContentService.createTextOutput(JSON.stringify(tasks))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  if (!e || !e.postData || !e.postData.contents) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: "Aucune donnée reçue" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  try {
+    const data = JSON.parse(e.postData.contents);
+    let result;
+    if (data.action === "add") {
+      result = addTask(data.tache);
+    } else if (data.action === "delete") {
+      result = deleteTask(data.id);
+    } else {
+      result = { ok: false, error: "Action inconnue" };
+    }
+    return ContentService.createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+
+
 </script>
 
 </body>
