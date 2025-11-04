@@ -9,53 +9,7 @@
 <link rel="icon" type="image/x-icon" href="MEMO.ico" />
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-.fade-out {
-  opacity: 0;
-  transition: opacity 0.4s ease-out;
-}
 
-/* Animation d’apparition + pulsation */
-@keyframes fadeInScale {
-  0% {
-    opacity: 0;
-    transform: scale(0.7);
-    filter: blur(4px);
-  }
-  60% {
-    opacity: 1;
-    transform: scale(1.05);
-    filter: blur(0);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0));
-  }
-  50% {
-    transform: scale(1.05);
-    filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.4));
-  }
-  100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0));
-  }
-}
-
-#MEMOtransp {
-  animation: fadeInScale 1s ease-out forwards, pulse 3s infinite ease-in-out;
-  cursor: pointer;
-  transition: transform 0.3s;
-}
-
-/* petit rebond au clic */
-#MEMOtransp:active {
-  transform: scale(0.95);
-}
 </style>
 </head>
 
@@ -67,7 +21,7 @@
 
   <!-- Conteneur logo + boutons -->
   <div class="flex items-start gap-4 mb-4 mt-8">
-    <img id="MEMOtransp" src="https://zaf57.github.io/MEMO/MEMOtransp.png" alt="Logo MEMO" class="w-40 h-40"> 
+    <img id="MEMOtransp" src="https://zaf57.github.io/MEMO/MEMOtransp.png" alt="Logo MEMO" class="w-32 h-32"> 
 
     <div class="flex flex-col gap-3 flex-1">
       <button id="voiceBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg">🎙️ Ajouter une tâche</button>
