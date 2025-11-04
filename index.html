@@ -14,14 +14,47 @@
   transition: opacity 0.4s ease-out;
 }
 
-/* Animation du logo */
-#MEMOtransp {
-  animation: float 3s ease-in-out infinite;
+/* Animation d’apparition + pulsation */
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+    filter: blur(4px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.05);
+    filter: blur(0);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.4));
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0));
+  }
+}
+
+#MEMOtransp {
+  animation: fadeInScale 1s ease-out forwards, pulse 3s infinite ease-in-out;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+/* petit rebond au clic */
+#MEMOtransp:active {
+  transform: scale(0.95);
 }
 </style>
 
