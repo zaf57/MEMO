@@ -13,6 +13,7 @@ body {
       background: url("MEMO.png") center/cover no-repeat;
       filter: blur(6px) brightness(0.7);
       z-index: -1;
+      zoom: 10;
     }
 
 /* Animation de disparition */
