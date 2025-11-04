@@ -9,6 +9,11 @@
 <link rel="icon" type="image/x-icon" href="MEMO.ico" />
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
+}
+
 /* Animation d’apparition + pulsation */
 @keyframes fadeInScale {
   0% {
@@ -39,6 +44,17 @@
     transform: scale(1);
     filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0));
   }
+}
+
+#MEMOtransp {
+  animation: fadeInScale 1s ease-out forwards, pulse 3s infinite ease-in-out;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+/* petit rebond au clic */
+#MEMOtransp:active {
+  transform: scale(0.95);
 }
 </style>
 </head>
