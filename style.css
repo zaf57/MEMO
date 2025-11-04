@@ -62,6 +62,10 @@ body {
     margin-bottom: -0.5rem;
 }
 
+.gap-4 {
+    gap: 0rem;
+}
+
 /* Animation d’apparition + pulsation */
 @keyframes fadeInScale {
   0% {
