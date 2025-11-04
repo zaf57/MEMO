@@ -131,7 +131,7 @@ function renderTasks() {
       div.style.backgroundColor = getBgColorFromDate(row.date);
       const dateStr = formatDateForDisplay(row.date);
       div.innerHTML = `
-        <span>✅ ${row.tache} <span class="text-gray-400 text-sm">(${dateStr})</span></span>
+        <span>◇ ${row.tache} <span class="text-gray-400 text-sm">(${dateStr})</span></span>
         <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
       `;
       fragment.appendChild(div);
