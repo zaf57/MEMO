@@ -2,12 +2,12 @@
 
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>MEMO</title>
-<link rel="icon" type="image/x-icon" href="MEMO.ico">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/x-icon" href="MEMO.ico" />
 <script src="https://cdn.tailwindcss.com"></script>
-<style>
 <style>
 .fade-out {
   opacity: 0;
@@ -57,43 +57,41 @@
   transform: scale(0.95);
 }
 </style>
-
-</style>
 </head>
+
 <body class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center p-6">
 
-<p id="todayDate" class="text-center text-gray-600 mb-4" style="color:white;"></p>
+<p id="todayDate" class="text-center text-gray-600 mb-4" style="color: white;"></p>
 
 <div class="bg-white/90 rounded-2xl shadow-xl p-6 max-w-md w-full backdrop-blur" style="background-color: rgb(255, 245, 229);">
-  <div class="flex justify-center mt-8" style="
-    margin-top: 1px;
-">
-    <img id="MEMOtransp" src="MEMOtransp.png" alt="Logo MEMO" class="w-32 h-32">
+
+  <!-- Conteneur logo + boutons -->
+  <div class="flex items-start gap-4 mb-4 mt-8">
+    <img id="MEMOtransp" src="https://zaf57.github.io/MEMO/MEMOtransp.png" alt="Logo MEMO" class="w-40 h-40"> 
+
+    <div class="flex flex-col gap-3 flex-1">
+      <button id="voiceBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg">🎙️ Ajouter une tâche</button>
+      <button id="readList" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg">🔊 Lire les tâches</button>
+      <p id="status" class="text-sm text-gray-600 mt-2 text-center">Dis par exemple : “Ajoute arroser les plantes”</p>
+      <p id="result" class="text-green-700 font-semibold text-center"></p>
+    </div>
   </div>
 
-  <div class="flex flex-col items-center gap-3 mb-4">
-    <button id="voiceBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg">🎙️ Ajouter une tâche</button>
-    <button id="readList" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg">🔊 Lire les tâches</button>
-    <p id="status" class="text-sm text-gray-600 mt-2 text-center">Dis par exemple : “Ajoute arroser les plantes”</p>
-    <p id="result" class="text-green-700 font-semibold text-center"></p>
-  </div>
-
+  <!-- Liste des tâches -->
   <div id="taskList" class="space-y-2">
     <div class="text-gray-400 text-center">Chargement...</div>
   </div> 
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbzTOzWTlwTNC0uY11KmuQji9cE4d4KMMGdh2P3mXiy3sJnGkyza9DBf42avaXFBvMou4Q/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbzTOzWTlwTNC0uY11KmuQji9cE4d4KMMGdh2P3mXiy3sJnGkyza9DBf42avaXFBvMou4Q/exec"; 
 const taskList = document.getElementById("taskList");
 const result = document.getElementById("result");
 const status = document.getElementById("status");
 const voiceBtn = document.getElementById("voiceBtn");
+let tasks = [];
 
-document.getElementById("todayDate").textContent = new Date().toLocaleDateString('fr-FR', {
-  weekday:'long', year:'numeric', month:'long', day:'numeric'
-});
-
+// -------- UTILITAIRES --------
 function speak(text){
   if(!("speechSynthesis" in window)) return;
   const utter = new SpeechSynthesisUtterance(text);
@@ -102,77 +100,107 @@ function speak(text){
   window.speechSynthesis.speak(utter);
 }
 
-async function loadList() {
+function formatDateForDisplay(dateStr) {
+  if (!dateStr) return "";
+  if (dateStr.includes("T")) {
+    const d = new Date(dateStr);
+    if (isNaN(d)) return "";
+    return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`;
+  }
+  const parts = dateStr.split(/[\/\-]/).map(Number);
+  if (parts.length >= 2) {
+    const [d, m] = parts;
+    return `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}`;
+  } 
+  return "";
+}
+
+function getBgColorFromDate(dateStr) {
+  if (!dateStr) return "#04785730";
+  const formatted = formatDateForDisplay(dateStr);
+  const [d, m] = formatted.split("/").map(Number);
+  if (!d || !m) return "#04785730";
+  const taskDate = new Date(new Date().getFullYear(), m - 1, d);
+  const diffDays = Math.floor((new Date() - taskDate) / (1000 * 60 * 60 * 24));
+  if (diffDays >= 3) return "#f8717130";
+  if (diffDays >= 1) return "#fbbf2430";
+  return "#04785730";
+}
+
+// -------- AFFICHAGE --------
+function renderTasks() {
+  taskList.innerHTML = "";
+  if (!tasks || tasks.length === 0) {
+    taskList.innerHTML = "<div class='text-gray-500 text-center'>Aucune tâche</div>";
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  tasks.forEach(row => {
+    if (row.tache) {
+      const div = document.createElement("div");
+      div.className = "flex justify-between items-center p-2 rounded-lg task-item"; 
+      div.style.backgroundColor = getBgColorFromDate(row.date);
+      const dateStr = formatDateForDisplay(row.date);
+      div.innerHTML = `
+        <span>✅ ${row.tache} <span class="text-gray-400 text-sm">(${dateStr})</span></span>
+        <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
+      `;
+      fragment.appendChild(div);
+    }
+  });
+  taskList.appendChild(fragment);
+
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", async e => {
+      const id = Number(e.target.getAttribute("data-id"));
+      await deleteTask(id);
+    });
+  });
+}
+
+// -------- CHARGEMENT --------
+async function loadList(force = false) {
+  if (tasks.length > 0 && !force) {
+    renderTasks();
+    return;
+  }
+
   try {
     const res = await fetch(scriptURL);
-    const data = await res.json();
-    taskList.innerHTML = "";
-
-    if (!data || data.length === 0) {
-      taskList.innerHTML = "<div class='text-gray-500 text-center'>Aucune tâche</div>";
-      return;
-    }
-
-    data.forEach(row => {
-  if (row.tache) {
-    const div = document.createElement("div");
-    div.className = "flex justify-between items-center p-2 rounded-lg task-item";
-
-    // ✅ Couleur par défaut
-    let bgColor = "#04785730";
-
-    // ✅ Gestion de la date
-    let dateStr = "";
-    let diffDays = 0;
-
-    if (row.date) {
-      // Convertir la date reçue en objet Date
-      const dateObj = new Date(row.date);
-      if (!isNaN(dateObj)) {
-        const day = dateObj.getDate();
-        const month = dateObj.getMonth() + 1;
-        dateStr = `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}`;
-
-        // Calcul différence en jours
-        const today = new Date();
-        diffDays = Math.floor((today - dateObj) / (1000 * 60 * 60 * 24));
-
-        // Couleur selon l’âge
-        if (diffDays >= 3) bgColor = "#f8717130"; // rouge clair
-        else if (diffDays >= 1) bgColor = "#fbbf2430"; // orange clair
-      }
-    }
-
-    div.style.backgroundColor = bgColor;
-
-    // ✅ Affichage
-    div.innerHTML = `
-      <span>✅ ${row.tache} <span class="text-gray-400 text-sm">(${dateStr})</span></span>
-      <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
-    `;
-
-    taskList.appendChild(div); 
-  }
-});
-
-
-    // ✅ Suppression
-    document.querySelectorAll(".delete-btn").forEach(btn => {
-      btn.addEventListener("click", async e => {
-        const id = Number(e.target.getAttribute("data-id"));
-        await deleteTask(id);
-      });
-    });
-
+    tasks = await res.json();
+    tasks = tasks.map(t => ({ ...t, date: formatDateForDisplay(t.date) }));
+    renderTasks();
   } catch (err) {
     taskList.innerHTML = "<div class='text-red-500 text-center'>Erreur de chargement</div>";
     console.error(err);
   }
 }
 
+// -------- SUPPRESSION --------
+async function deleteTask(id) {
+  const itemDiv = document.querySelector(`.delete-btn[data-id="${id}"]`)?.closest("div");
+  if(!itemDiv) return;
+  itemDiv.classList.add("fade-out");
+  setTimeout(async ()=>{
+    try{
+      const res = await fetch(scriptURL, {
+        method:"POST",
+        body: JSON.stringify({action:"delete", id})
+      });
+      const json = await res.json();
+      if(json.ok){
+        new Audio("recycle-bin.mp3").play();
+        tasks = tasks.filter(t => t.id != id);
+        renderTasks();
+      } else alert("Erreur serveur : "+(json.error||""));
+    }catch(err){
+      alert("Erreur réseau : "+err.message);
+    }
+  },400);
+}
 
-
-
+// -------- VOIX --------
 voiceBtn.addEventListener("click", ()=>{
   if(!("webkitSpeechRecognition" in window)){
     alert("La reconnaissance vocale n'est pas supportée sur ce navigateur (Chrome requis).");
@@ -192,9 +220,13 @@ voiceBtn.addEventListener("click", ()=>{
       });
       const json = await res.json();
       if(json.ok){
+        const today = new Date();
+        const dateStr = `${String(today.getDate()).padStart(2,"0")}/${String(today.getMonth()+1).padStart(2,"0")}`;
+        const newTask = { id: json.id || Date.now(), tache: phrase, date: dateStr };
+        tasks.push(newTask);
+        renderTasks();
         result.textContent="Tâche ajoutée ✅";
         speak("Tâche ajoutée");
-        loadList();
       } else result.textContent="Erreur serveur : "+(json.error||"");
     }catch(err){
       result.textContent="Erreur réseau : "+err.message;
@@ -203,6 +235,7 @@ voiceBtn.addEventListener("click", ()=>{
   rec.onerror=()=>{status.textContent="❌ Erreur de reconnaissance vocale";};
 });
 
+// -------- LECTURE --------
 document.getElementById("readList").addEventListener("click", async ()=>{
   try{
     const res = await fetch(scriptURL);
@@ -213,29 +246,14 @@ document.getElementById("readList").addEventListener("click", async ()=>{
     speak(phrase);
   }catch{ speak("Erreur lors de la lecture"); }
 });
-  
-  async function deleteTask(id){
-  const itemDiv = document.querySelector(`.delete-btn[data-id="${id}"]`)?.closest("div");
-  if(!itemDiv) return;
-  itemDiv.classList.add("fade-out");
-  setTimeout(async ()=>{
-    try{
-      const res = await fetch(scriptURL, {
-        method:"POST",
-        body: JSON.stringify({action:"delete", id})
-      });
-      const json = await res.json();
-      if(!json.ok) alert("Erreur serveur : "+(json.error||""));
-      new Audio("recycle-bin.mp3").play();
-      loadList();
-    }catch(err){
-      alert("Erreur réseau : "+err.message);
-    }
-  },400);
-}
 
+// -------- DATE D'AUJOURD'HUI --------
+document.getElementById("todayDate").textContent =
+  new Date().toLocaleDateString('fr-FR', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+
+// -------- DÉMARRAGE --------
 loadList();
 </script>
 
 </body>
-</html> 
+</html>
