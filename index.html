@@ -1,23 +1,22 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MEMO</title>
-<link rel="stylesheet" href="style.css">
-<link rel="icon" type="image/x-icon" href="MEMO.ico" />
+<link rel="icon" type="image/x-icon" href="MEMO.ico">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-.fade-out { 
-  opacity: 0; 
-  transition: opacity 0.4s ease-out; 
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
 }
 </style>
 </head>
-
 <body class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center p-6">
 
-<p id="todayDate" class="text-center text-gray-600 mb-4" style="color: white;"></p>
+<p id="todayDate" class="text-center text-gray-600 mb-4" style="color:white;"></p>
 
 <div class="bg-white/90 rounded-2xl shadow-xl p-6 max-w-md w-full backdrop-blur" style="background-color: rgb(255, 245, 229);">
   <div class="flex justify-center mt-8">
@@ -37,14 +36,15 @@
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbwe0ijNVIGxha5SW3OWpk8uBYMHCAqEOSwV0Io-CgIOzL-KIgBHgse0NCiXds1ATWO8dQ/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbzTOzWTlwTNC0uY11KmuQji9cE4d4KMMGdh2P3mXiy3sJnGkyza9DBf42avaXFBvMou4Q/exec";
 const taskList = document.getElementById("taskList");
 const result = document.getElementById("result");
 const status = document.getElementById("status");
 const voiceBtn = document.getElementById("voiceBtn");
-const today = new Date();
-const day = today.getDate();
-const month = today.getMonth() + 1; // Mois de 0 à 11
+
+document.getElementById("todayDate").textContent = new Date().toLocaleDateString('fr-FR', {
+  weekday:'long', year:'numeric', month:'long', day:'numeric'
+});
 
 function speak(text){
   if(!("speechSynthesis" in window)) return;
@@ -54,66 +54,76 @@ function speak(text){
   window.speechSynthesis.speak(utter);
 }
 
-async function loadList(){
+async function loadList() {
   try {
     const res = await fetch(scriptURL);
     const data = await res.json();
     taskList.innerHTML = "";
-    if(!data || data.length === 0){
+
+    if (!data || data.length === 0) {
       taskList.innerHTML = "<div class='text-gray-500 text-center'>Aucune tâche</div>";
       return;
     }
-data.forEach((row, index) => {
-  if(row.tache){
+
+    data.forEach(row => {
+  if (row.tache) {
     const div = document.createElement("div");
-    div.className = "flex justify-between items-center bg-gray-100 p-2 rounded-lg task-item";
-    div.style.backgroundColor = "#04785730";
+    div.className = "flex justify-between items-center p-2 rounded-lg task-item";
+
+    // ✅ Couleur par défaut
+    let bgColor = "#04785730";
+
+    // ✅ Gestion de la date
+    let dateStr = "";
+    let diffDays = 0;
+
+    if (row.date) {
+      // Convertir la date reçue en objet Date
+      const dateObj = new Date(row.date);
+      if (!isNaN(dateObj)) {
+        const day = dateObj.getDate();
+        const month = dateObj.getMonth() + 1;
+        dateStr = `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}`;
+
+        // Calcul différence en jours
+        const today = new Date();
+        diffDays = Math.floor((today - dateObj) / (1000 * 60 * 60 * 24));
+
+        // Couleur selon l’âge
+        if (diffDays >= 3) bgColor = "#f8717130"; // rouge clair
+        else if (diffDays >= 1) bgColor = "#fbbf2430"; // orange clair
+      }
+    }
+
+    div.style.backgroundColor = bgColor;
+
+    // ✅ Affichage
     div.innerHTML = `
-      <span>✅ ${row.tache} <span class="text-gray-400 text-sm">(${day}/${month})</span></span>
+      <span>✅ ${row.tache} <span class="text-gray-400 text-sm">(${dateStr})</span></span>
       <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
     `;
-    taskList.appendChild(div);
 
-    // Animation pop-in avec léger décalage pour chaque tâche
-    setTimeout(() => {
-      div.classList.add("show");
-    }, index * 200); // 0.1s de décalage entre chaque tâche
+    taskList.appendChild(div); 
   }
 });
 
 
-    document.querySelectorAll(".delete-btn").forEach(btn=>{
-      btn.addEventListener("click", async e=>{
+    // ✅ Suppression
+    document.querySelectorAll(".delete-btn").forEach(btn => {
+      btn.addEventListener("click", async e => {
         const id = Number(e.target.getAttribute("data-id"));
         await deleteTask(id);
       });
     });
-  } catch(err){
-    taskList.innerHTML="<div class='text-red-500 text-center'>Erreur de chargement</div>";
+
+  } catch (err) {
+    taskList.innerHTML = "<div class='text-red-500 text-center'>Erreur de chargement</div>";
     console.error(err);
   }
 }
 
-async function deleteTask(id){
-  const itemDiv = document.querySelector(`.delete-btn[data-id="${id}"]`)?.closest("div");
-  if(!itemDiv) return;
-  itemDiv.classList.add("fade-out");
-  setTimeout(async ()=>{
-    try{
-      const res = await fetch(scriptURL, {
-        method:"POST",
-        body: JSON.stringify({action:"delete", id})
-      });
-      const json = await res.json();
-      if(!json.ok) alert("Erreur serveur : "+(json.error||""));
-       // Jouer le son de suppression
-      new Audio("recycle-bin.mp3").play();
-      loadList();
-    }catch(err){
-      alert("Erreur réseau : "+err.message);
-    }
-  },400);
-}
+
+
 
 voiceBtn.addEventListener("click", ()=>{
   if(!("webkitSpeechRecognition" in window)){
@@ -155,11 +165,29 @@ document.getElementById("readList").addEventListener("click", async ()=>{
     speak(phrase);
   }catch{ speak("Erreur lors de la lecture"); }
 });
-
-document.getElementById("todayDate").textContent = new Date().toLocaleDateString('fr-FR', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+  
+  async function deleteTask(id){
+  const itemDiv = document.querySelector(`.delete-btn[data-id="${id}"]`)?.closest("div");
+  if(!itemDiv) return;
+  itemDiv.classList.add("fade-out");
+  setTimeout(async ()=>{
+    try{
+      const res = await fetch(scriptURL, {
+        method:"POST",
+        body: JSON.stringify({action:"delete", id})
+      });
+      const json = await res.json();
+      if(!json.ok) alert("Erreur serveur : "+(json.error||""));
+      new Audio("recycle-bin.mp3").play();
+      loadList();
+    }catch(err){
+      alert("Erreur réseau : "+err.message);
+    }
+  },400);
+}
 
 loadList();
 </script>
 
 </body>
-</html>
+</html> 
