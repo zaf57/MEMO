@@ -213,7 +213,7 @@ voiceBtn.addEventListener("click", ()=>{
         const newTask = { id: json.id || Date.now(), tache: phrase, date: dateStr };
         tasks.push(newTask);
         renderTasks();
-        result.textContent="Tâche ajoutée ✅";
+        result.textContent="Tâche ajoutée!";
         speak("Tâche ajoutée");
       } else result.textContent="Erreur serveur : "+(json.error||"");
     }catch(err){
