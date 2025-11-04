@@ -8,10 +8,23 @@
 <link rel="icon" type="image/x-icon" href="MEMO.ico">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
+<style>
 .fade-out {
   opacity: 0;
   transition: opacity 0.4s ease-out;
 }
+
+/* Animation du logo */
+#MEMOtransp {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+</style>
+
 </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center p-6">
