@@ -1,36 +1,80 @@
-🎙️ Activer le micro sur un site mobile (Android ou iPhone)
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tutoriel Micro - MEMO</title>
+  <link rel="icon" type="image/x-icon" href="MEMO.ico">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #fef9f3, #f4f4f4);
+    }
+    .step {
+      background-color: white;
+      border-left: 5px solid #10b981;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .emoji {
+      font-size: 1.3rem;
+      margin-right: 0.3rem;
+    }
+    a.back {
+      color: #10b981;
+      text-decoration: underline;
+    }
+    a.back:hover {
+      color: #059669;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-6">
 
-✅ 1. Ouvre le site concerné
+  <div class="max-w-lg w-full bg-white/90 backdrop-blur rounded-2xl shadow-lg p-6 mt-6">
+    <h1 class="text-2xl font-bold text-emerald-700 mb-4 text-center">🎙️ Activer le micro sur mobile</h1>
 
-• Lance Google Chrome sur ton téléphone.
+    <div class="step">
+      <p><span class="emoji">✅</span><strong>1. Ouvre le site concerné</strong></p>
+      <ul class="list-disc pl-5 mt-2 text-gray-700">
+        <li>Lance Google Chrome sur ton téléphone.</li>
+        <li>Va sur le site web qui demande l’accès au micro.</li>
+      </ul>
+    </div>
 
-• Va sur le site web qui demande l’accès au micro.
+    <div class="step">
+      <p><span class="emoji">⚙️</span><strong>2. Vérifie les autorisations du site</strong></p>
+      <ul class="list-disc pl-5 mt-2 text-gray-700">
+        <li>Appuie sur les trois points <b>⋮</b> (Android) ou sur <b>“aA”</b> dans la barre d’adresse (iPhone).</li>
+        <li>Sélectionne <b>“Paramètres du site”</b> ou <b>“Paramètres du site web”</b>.</li>
+        <li>Choisis <b>Microphone</b>.</li>
+        <li>Mets <b>“Autoriser”</b> (ou “Allow”).</li>
+      </ul>
+    </div>
 
-⚙️ 2. Vérifie les autorisations du site
+    <div class="step">
+      <p><span class="emoji">🔄</span><strong>3. Recharge la page</strong></p>
+      <ul class="list-disc pl-5 mt-2 text-gray-700">
+        <li>Recharge le site.</li>
+        <li>Chrome devrait te redemander : “Autoriser l’accès au micro ?” → Appuie sur <b>Autoriser</b>.</li>
+      </ul>
+    </div>
 
-• Appuie sur les trois points ⋮ (Android) ou le “aA” dans la barre d’adresse (iPhone).
+    <div class="step">
+      <p><span class="emoji">🧩</span><strong>Optionnel : vérifier dans les paramètres système</strong></p>
+      <p class="mt-2 text-gray-700"><b>Si ça ne marche toujours pas :</b></p>
+      <ul class="list-disc pl-5 mt-2 text-gray-700">
+        <li><b>Android :</b><br>Paramètres → Applications → Chrome → Autorisations → Microphone → Autoriser.</li>
+        <li class="mt-2"><b>iPhone :</b><br>Réglages → Chrome → Micro → active le bouton.</li>
+      </ul>
+    </div>
 
-• Sélectionne “Paramètres du site” ou “Paramètres du site web”.
+    <div class="text-center mt-6">
+      <a href="index.html" class="back">⬅️ Retour à MEMO</a>
+    </div>
+  </div>
 
-• Cherche Microphone.
-
-• Mets “Autoriser” (ou “Allow”).
-
-🔄 3. Recharge la page
-
-• Recharge le site.
-
-• Chrome devrait te redemander “Autoriser l’accès au micro ?”
-  → Appuie sur Autoriser.
-
-🧩 Optionnel : vérifier dans les paramètres système
-
-Si ça ne marche toujours pas :
-
-• Android :
-
-  •Paramètres → Applications → Chrome → Autorisations → Microphone → Autoriser.
-
-• iPhone :
-
-  • Réglages → Chrome → Micro → active le bouton.
+</body>
+</html>
