@@ -236,7 +236,7 @@ voiceBtn.addEventListener("click", ()=>{
       result.textContent="Erreur réseau : "+err.message;
     }
   };
-  rec.onerror=()=>{status.textContent="❌ Erreur de reconnaissance vocale";};
+  rec.onerror=()=>{status.textContent="❌ Erreur vocale, activer le micro dans les paramètres du navigateur";};
 });
 
 // -------- LECTURE --------
