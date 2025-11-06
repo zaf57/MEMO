@@ -98,4 +98,11 @@ body {
     filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0));
   }
 }
+/* Classes pour appliquer les animations */
+.fade-in-scale {
+  animation: fadeInScale 0.5s ease-out forwards;
+}
 
+.pulse-logo {
+  animation: pulse 2s infinite;
+}
