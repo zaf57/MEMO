@@ -36,7 +36,7 @@
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbzTOzWTlwTNC0uY11KmuQji9cE4d4KMMGdh2P3mXiy3sJnGkyza9DBf42avaXFBvMou4Q/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbx_qRpFyEMagjCBTLCYg-xsojIbkdciWc5vwuyQYwxZf2ioFT2TW00Vwelx9Dyx2lPLqw/exec";
 const taskList = document.getElementById("taskList");
 const result = document.getElementById("result");
 const status = document.getElementById("status");
@@ -66,47 +66,36 @@ async function loadList() {
     }
 
     data.forEach(row => {
-  if (row.tache) {
-    const div = document.createElement("div");
-    div.className = "flex justify-between items-center p-2 rounded-lg task-item";
+      if (row.tache) {
+        const div = document.createElement("div");
+        div.className = "flex justify-between items-center p-2 rounded-lg task-item";
 
-    // ✅ Couleur par défaut
-    let bgColor = "#04785730";
+        let bgColor = "#04785730";
+        let dateStr = "";
+        let diffDays = 0;
 
-    // ✅ Gestion de la date
-    let dateStr = "";
-    let diffDays = 0;
+        if (row.date) {
+          const dateObj = new Date(row.date);
+          if (!isNaN(dateObj)) {
+            const day = dateObj.getDate();
+            const month = dateObj.getMonth() + 1;
+            dateStr = `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}`;
+            const today = new Date();
+            diffDays = Math.floor((today - dateObj) / (1000 * 60 * 60 * 24));
+            if (diffDays >= 3) bgColor = "#f8717130";
+            else if (diffDays >= 1) bgColor = "#fbbf2430";
+          }
+        }
 
-    if (row.date) {
-      // Convertir la date reçue en objet Date
-      const dateObj = new Date(row.date);
-      if (!isNaN(dateObj)) {
-        const day = dateObj.getDate();
-        const month = dateObj.getMonth() + 1;
-        dateStr = `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}`;
+        div.style.backgroundColor = bgColor;
+        div.innerHTML = `
+          <span>◇ ${row.tache} <span class="text-gray-400 text-sm">(${dateStr})</span></span>
+          <button class="delete-btn text-red-600" data-id="${Number(row.id)}">🗑️</button>
+        `;
 
-        // Calcul différence en jours
-        const today = new Date();
-        diffDays = Math.floor((today - dateObj) / (1000 * 60 * 60 * 24));
-
-        // Couleur selon l’âge
-        if (diffDays >= 3) bgColor = "#f8717130"; // rouge clair
-        else if (diffDays >= 1) bgColor = "#fbbf2430"; // orange clair
+        taskList.appendChild(div); 
       }
-    }
-
-    div.style.backgroundColor = bgColor;
-
-    // ✅ Affichage
-    div.innerHTML = `
-      <span>✅ ${row.tache} <span class="text-gray-400 text-sm">(${dateStr})</span></span>
-      <button class="delete-btn text-red-600" data-id="${row.id}">🗑️</button>
-    `;
-
-    taskList.appendChild(div); 
-  }
-});
-
+    });
 
     // ✅ Suppression
     document.querySelectorAll(".delete-btn").forEach(btn => {
@@ -122,10 +111,7 @@ async function loadList() {
   }
 }
 
-
-
-
-voiceBtn.addEventListener("click", ()=>{
+voiceBtn.addEventListener("click", ()=> {
   if(!("webkitSpeechRecognition" in window)){
     alert("La reconnaissance vocale n'est pas supportée sur ce navigateur (Chrome requis).");
     return;
@@ -144,7 +130,7 @@ voiceBtn.addEventListener("click", ()=>{
       });
       const json = await res.json();
       if(json.ok){
-        result.textContent="Tâche ajoutée ✅";
+        result.textContent="Tâche ajoutée ";
         speak("Tâche ajoutée");
         loadList();
       } else result.textContent="Erreur serveur : "+(json.error||"");
@@ -155,7 +141,7 @@ voiceBtn.addEventListener("click", ()=>{
   rec.onerror=()=>{status.textContent="❌ Erreur de reconnaissance vocale";};
 });
 
-document.getElementById("readList").addEventListener("click", async ()=>{
+document.getElementById("readList").addEventListener("click", async ()=> {
   try{
     const res = await fetch(scriptURL);
     const data = await res.json();
@@ -166,15 +152,15 @@ document.getElementById("readList").addEventListener("click", async ()=>{
   }catch{ speak("Erreur lors de la lecture"); }
 });
   
-  async function deleteTask(id){
-  const itemDiv = document.querySelector(`.delete-btn[data-id="${id}"]`)?.closest("div");
+async function deleteTask(id){
+  const itemDiv = document.querySelector(`.delete-btn[data-id="${id}"]`)?.closest("div"); 
   if(!itemDiv) return;
   itemDiv.classList.add("fade-out");
   setTimeout(async ()=>{
     try{
       const res = await fetch(scriptURL, {
         method:"POST",
-        body: JSON.stringify({action:"delete", id})
+        body: JSON.stringify({action:"delete", id: Number(id)}) 
       });
       const json = await res.json();
       if(!json.ok) alert("Erreur serveur : "+(json.error||""));
@@ -190,4 +176,4 @@ loadList();
 </script>
 
 </body>
-</html> 
+</html>
