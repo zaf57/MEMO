@@ -138,16 +138,12 @@ body {
   background-color: #fee2e2; /* rouge rosé */
 }
 
-.delete-btn {
-  background: transparent;
-  border: none;
-  padding: 4px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.delete-btn:hover {
-  transform: scale(1.2);
+/* Icône poubelle blanche avec fond transparent */
+.trash-icon {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) invert(1);  /* rend l’icône blanche si elle est noire */
+  display: block;                   /* corrige l’alignement vertical */
 }
 
 
