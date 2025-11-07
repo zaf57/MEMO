@@ -68,7 +68,7 @@ body {
   border-radius: 12px;
   font-weight: 600;
   padding: 10px;
-  width: 100%;
+  width: 89%;
   transition: background 0.2s ease;
 }
 
@@ -170,7 +170,7 @@ body {
   align-items: center;  /* ✅ centre verticalement icône + texte */
   justify-content: center;
   gap: 8px;             /* espace entre l’icône et le texte */
-  width: 100%;
+  width: 89%;
   background-color: #059669;
   color: white;
   font-weight: 600;
