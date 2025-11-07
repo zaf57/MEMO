@@ -136,7 +136,7 @@
             div.innerHTML = `
               <span>◇ ${row.tache} <span class="text-gray-400 text-sm">(${dateStr})</span></span>
               <button class="delete-btn text-red-600" data-id="${Number(row.id)}">
-              🗑️
+              <img src="trash.svg" alt="Supprimer" class="trash-icon">
               </button>
             `;
             taskList.appendChild(div);
