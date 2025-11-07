@@ -1,4 +1,10 @@
 /* 🌿 MEMO - Design moderne, clair et doux */
+.write-icon {
+  width: 20px;
+  height: 20px;
+  display: block; /* évite le décalage vertical */
+}
+
 
 body {
   min-height: 100vh;
