@@ -1,108 +1,159 @@
+/* 🌿 MEMO - Design moderne, clair et doux */
+
 body {
-    background: url();
-    font-family: "Inter", sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: "Inter", sans-serif;
+  background: linear-gradient(135deg, #f7f7f7, #fefaf5);
+  padding: 1.5rem;
 }
-    /* 🖼️ Fond ZAF */
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url("MEMO.png") center/cover no-repeat;
-      filter: blur(6px) brightness(0.7);
-      z-index: -1;
-      zoom: 10;
-    }
+
+/* Carte principale */
+.container {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.logo img {
+  width: 50px;
+  height: 50px;
+  animation: pulse 2s infinite;
+}
+
+.logo h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Date */
+#todayDate {
+  color: #334155;
+  font-weight: 500;
+  margin-bottom: 1.2rem;
+}
+
+/* Bouton vocal */
+#voiceBtn {
+  background-color: #059669;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 0.8rem;
+  width: 100%;
+  transition: background 0.2s ease;
+}
+
+#voiceBtn:hover {
+  background-color: #047857;
+}
+
+/* Champ de saisie */
+.input-zone {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+#manualTask {
+  flex: 1;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+#manualTask:focus {
+  border-color: #10b981;
+}
+
+#addManual {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+#addManual:hover {
+  background-color: #059669;
+}
+
+/* Liste de tâches */
+#taskList {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* Élément de tâche */
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* Couleurs selon l’ancienneté */
+.task-recent {
+  background-color: #d1fae5; /* vert clair */
+}
+
+.task-medium {
+  background-color: #fef9c3; /* jaune pâle */
+}
+
+.task-old {
+  background-color: #fee2e2; /* rouge rosé */
+}
+
+.delete-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.delete-btn:hover {
+  transform: scale(1.2);
+}
+
+/* Animation du logo */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(16,185,129,0)); }
+  50% { transform: scale(1.05); filter: drop-shadow(0 0 12px rgba(16,185,129,0.4)); }
+}
 
 /* Animation de disparition */
 .fade-out {
   opacity: 0;
-  transform: translateX(20px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-.new-task {
-  animation: pop 0.4s ease;
-}
-
-@keyframes pop {
-  0% { transform: scale(0.8); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-
-@keyframes fadeOut {
-  0% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(-50px);
-  }
-}
-
-.bg-emerald-600 {
-    --tw-bg-opacity: 1;
-    background-color: rgb(87 201 122); 
-}
-
-.bg-orange-600 {
-    --tw-bg-opacity: 1;
-    background-color: rgb(254 126 100 / var(--tw-bg-opacity, 1));
-}
-
-.bg-gray-100 {
-    --tw-bg-opacity: 1;
-    background-color: #05966936;
-}
-
-.mb-6 {
-    margin-bottom: -0.5rem;
-}
-
-.gap-4 {
-    gap: 0rem;
-}
-
-/* Animation d’apparition + pulsation */
-@keyframes fadeInScale {
-  0% {
-    opacity: 0;
-    transform: scale(0.7);
-    filter: blur(4px);
-  }
-  60% {
-    opacity: 1;
-    transform: scale(1.05);
-    filter: blur(0);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0));
-  }
-  50% {
-    transform: scale(1.05);
-    filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.4));
-  }
-  100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0));
-  }
-}
-/* Classes pour appliquer les animations */
-.fade-in-scale {
-  animation: fadeInScale 0.5s ease-out forwards;
-}
-
-.pulse-logo {
-  animation: pulse 2s infinite;
+  transition: opacity 0.4s ease-out;
 }
