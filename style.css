@@ -139,16 +139,17 @@ body {
 }
 
 .delete-btn {
-  border: none;
   background: transparent;
+  border: none;
+  padding: 4px;
   cursor: pointer;
-  font-size: 1.1rem;
   transition: transform 0.2s ease;
 }
 
 .delete-btn:hover {
   transform: scale(1.2);
 }
+
 
 /* Animation du logo */
 @keyframes pulse {
