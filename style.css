@@ -56,12 +56,12 @@ body {
 
 /* Bouton vocal */
 #voiceBtn {
-  background-color: #059669;
+  background-color: #10b981;
   color: white;
   border: none;
   border-radius: 12px;
   font-weight: 600;
-  padding: 0.8rem;
+  padding: 10px;
   width: 100%;
   transition: background 0.2s ease;
 }
