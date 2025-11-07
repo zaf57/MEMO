@@ -57,13 +57,24 @@
   <div class="bg-white/90 rounded-2xl shadow-xl p-6 max-w-md w-full backdrop-blur" style="background-color: white;">
     
     <!-- Champ manuel -->
-    <div class="flex gap-2 mb-3">
-      <input id="manualTask" type="text" placeholder="✍️ Écrire une tâche..."
-        class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500" style="padding-right: 1px;">
-      <button id="addManual" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 rounded-lg">
-        +
-      </button>
-    </div>
+    <div class="flex gap-2 mb-3 items-center">
+  <div class="relative flex-1">
+    <img src="writepen.svg" alt="Écrire" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 opacity-70">
+    <input
+      id="manualTask"
+      type="text"
+      placeholder="Écrire une tâche..."
+      class="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+    >
+  </div>
+
+  <button
+    id="addManual"
+    class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 rounded-lg flex items-center justify-center"
+  >
+    <img src="plus.svg" alt="Ajouter" class="w-5 h-5">
+  </button>
+</div>
 
     <p id="status" class="text-sm text-gray-600 mt-2 text-center">
       Dis : “arroser les plantes” ou écris ci-dessus
