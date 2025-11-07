@@ -158,9 +158,30 @@ body {
   transition: opacity 0.4s ease-out;
 }
 
+.voice-btn {
+  display: inline-flex; /* ✅ inline-flex garantit un alignement horizontal parfait */
+  align-items: center;  /* ✅ centre verticalement icône + texte */
+  justify-content: center;
+  gap: 8px;             /* espace entre l’icône et le texte */
+  width: 100%;
+  background-color: #059669;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+  font-size: 15px;
+}
+
+.voice-btn:hover {
+  background-color: #047857;
+  transform: scale(1.02);
+}
+
+/* Icône du micro */
 .icon {
-  width: 20px;
-  height: 20px;
-  vertical-align: middle;
-  margin-right: 8px;
+width: 22px;
+height: 22px;
 }
