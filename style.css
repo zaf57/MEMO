@@ -22,6 +22,10 @@ body {
   text-align: center;
 }
 
+.to-gray-200 {
+    --tw-gradient-to: #000000 var(--tw-gradient-to-position);
+}
+
 /* Logo */
 .logo {
   display: flex;
