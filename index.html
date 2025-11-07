@@ -128,7 +128,9 @@
             div.style.backgroundColor = bgColor;
             div.innerHTML = `
               <span>◇ ${row.tache} <span class="text-gray-400 text-sm">(${dateStr})</span></span>
-              <button class="delete-btn text-red-600" data-id="${Number(row.id)}">🗑️</button>
+              <button class="delete-btn text-red-600" data-id="${Number(row.id)}">
+              <img src="trash.svg" alt="Supprimer" class="w-5 h-5">️
+              </button>
             `;
             taskList.appendChild(div);
           }
