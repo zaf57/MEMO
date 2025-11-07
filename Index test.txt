@@ -1,6 +1,233 @@
-<!DOCTYPE html> <html lang="fr"> <head> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"> <title>MEMO</title> <link rel="icon" type="image/x-icon" href="MEMO.ico"> <script src="https://cdn.tailwindcss.com"></script> <style> .fade-out {   opacity: 0;   transition: opacity 0.4s ease-out; } /* Animation d’apparition + pulsation */ @keyframes fadeInScale {   0% { opacity: 0; transform: scale(0.7); filter: blur(4px); }   60% { opacity: 1; transform: scale(1.05); filter: blur(0); }   100% { transform: scale(1); } } @keyframes pulse {   0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(16,185,129,0)); }   50% { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(16,185,129,0.4)); } } .fade-in-scale { animation: fadeInScale 0.5s ease-out forwards; } .pulse-logo { animation: pulse 2s infinite; } </style> </head> <body class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center p-6">  <p id="todayDate" class="text-center text-gray-600 mb-4" style="color:white;"></p>  <div class="bg-white/90 rounded-2xl shadow-xl p-6 max-w-md w-full backdrop-blur" style="background-color: rgb(255, 245, 229);">    <div class="flex items-center gap-4 mb-4" style="gap: 1px;margin-bottom: 1px;margin-top: 1px;">     <!-- Logo -->     <img id="MEMOtransp" src="MEMOtransp.png" alt="Logo MEMO" class="w-32 h-32 fade-in-scale pulse-logo">      <!-- Boutons -->     <div class="flex flex-col flex-1 gap-2">       <button id="voiceBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg" style="padding: 8px;">🎙️ Ajoute une tâche</button>     </div>   </div>    <!-- Champ manuel -->   <div class="flex gap-2 mb-3">     <input id="manualTask" type="text" placeholder="✍️ Écrire une tâche..." class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500">          <button id="addManual" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 rounded-lg">➕</button>         </div>    <p id="status" class="text-sm text-gray-600 mt-2 text-center">Dis: “arroser les plantes” ou écris ci-dessus</p>    <p id="voiceErrorHelp" class="text-center text-sm text-red-600 mt-2 hidden">     ❌ Problème avec la reconnaissance vocale ?     <a href="tuto.html" class="text-blue-600 underline hover:text-blue-800">Voir le tutoriel</a>   </p>    <div id="taskList" class="space-y-2">     <div class="text-gray-400 text-center">Chargement...</div>   </div>  </div>  <script> const scriptURL = "https://script.google.com/macros/s/AKfycbx_qRpFyEMagjCBTLCYg-xsojIbkdciWc5vwuyQYwxZf2ioFT2TW00Vwelx9Dyx2lPLqw/exec"; const taskList = document.getElementById("taskList"); const result = document.getElementById("result"); const status = document.getElementById("status"); const voiceBtn = document.getElementById("voiceBtn"); const manualInput = document.getElementById("manualTask"); const addManual = document.getElementById("addManual");  document.getElementById("todayDate").textContent = new Date().toLocaleDateString('fr-FR', {   weekday:'long', year:'numeric', month:'long', day:'numeric' });  function speak(text){   if(!("speechSynthesis" in window)) return;   const utter = new SpeechSynthesisUtterance(text);   utter.lang="fr-FR";   utter.rate=1;   window.speechSynthesis.speak(utter); }  async function loadList() {   try {     const res = await fetch(scriptURL);     const data = await res.json();     taskList.innerHTML = "";      if (!data || data.length === 0) {       taskList.innerHTML = "<div class='text-gray-500 text-center'>Aucune tâche</div>";       return;     }      data.forEach(row => {       if (row.tache) {         const div = document.createElement("div");         div.className = "flex justify-between items-center p-2 rounded-lg task-item";          let bgColor = "#04785730";         let dateStr = "";         let diffDays = 0;          if (row.date) {           const dateObj = new Date(row.date);           if (!isNaN(dateObj)) {             const day = dateObj.getDate();             const month = dateObj.getMonth() + 1;             dateStr = `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}`;             const today = new Date();             diffDays = Math.floor((today - dateObj) / (1000 * 60 * 60 * 24));             if (diffDays >= 3) bgColor = "#f8717130";             else if (diffDays >= 1) bgColor = "#fbbf2430";           }         }          div.style.backgroundColor = bgColor;         div.innerHTML = `           <span>◇ ${row.tache} <span class="text-gray-400 text-sm">(${dateStr})</span></span>           <button class="delete-btn text-red-600" data-id="${Number(row.id)}">🗑️</button>         `;         taskList.appendChild(div);        }     });      document.querySelectorAll(".delete-btn").forEach(btn => {       btn.addEventListener("click", async e => {         const id = Number(e.target.getAttribute("data-id"));         await deleteTask(id);       });     });    } catch (err) {     taskList.innerHTML = "<div class='text-red-500 text-center'>Erreur de chargement</div>";     console.error(err);   } }  // 🎙️ Ajout vocal voiceBtn.addEventListener("click", () => {   if(!("webkitSpeechRecognition" in window)){     alert("La reconnaissance vocale n'est pas supportée sur ce navigateur (Chrome requis).");     return;   }   const rec = new webkitSpeechRecognition();   rec.lang = "fr-FR";   rec.start();   status.textContent = "🎧 J'écoute...";   voiceErrorHelp.classList.add("hidden");    rec.onresult = async ev => {     const phrase = ev.results[0][0].transcript;      status.textContent = "🗣️ " + phrase;     await addTask(phrase);   };   rec.onerror = () => {     status.textContent = "Erreur reconnaissance vocale";     voiceErrorHelp.classList.remove("hidden");   }; });  // ✍️ Ajout manuel addManual.addEventListener("click", async () => {   const text = manualInput.value.trim();   if (text === "") return alert("Veuillez écrire une tâche.");   await addTask(text);   manualInput.value = ""; });  
-manualInput.addEventListener("keydown", e => {   if (e.key === "Enter") {     e.preventDefault();     addManual.click();   } });
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
+  <title>MEMO</title>
+  <link rel="icon" type="image/x-icon" href="MEMO.ico">
+  <script src="https://cdn.tailwindcss.com"></script>
 
+  <style>
+    .fade-out {
+      opacity: 0;
+      transition: opacity 0.4s ease-out;
+    }
 
-// ✅ Fonction commune pour ajouter 
-async function addTask(phrase) {   try {     const res = await fetch(scriptURL, {       method: "POST",       body: JSON.stringify({ action: "add", tache: phrase })     });     const json = await res.json();     if(json.ok){       speak("Tâche ajoutée");       loadList();     } else {       alert("Erreur serveur : " + (json.error || ""));     }   } catch(err) {     alert("Erreur réseau : " + err.message);   } }  // 🗑️ Suppression async function deleteTask(id){   const itemDiv = document.querySelector(`.delete-btn[data-id="${id}"]`)?.closest("div");    if(!itemDiv) return;   itemDiv.classList.add("fade-out");   setTimeout(async ()=>{     try{       const res = await fetch(scriptURL, {         method:"POST",         body: JSON.stringify({action:"delete", id: Number(id)})        });       const json = await res.json();       if(!json.ok) alert("Erreur serveur : "+(json.error||""));       new Audio("recycle-bin.mp3").play();       loadList();     }catch(err){       alert("Erreur réseau : "+err.message);      }   },400); }  loadList(); </script>  </body> </html>
+    /* Animation d’apparition + pulsation */
+    @keyframes fadeInScale {
+      0% { opacity: 0; transform: scale(0.7); filter: blur(4px); }
+      60% { opacity: 1; transform: scale(1.05); filter: blur(0); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(16,185,129,0)); }
+      50% { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(16,185,129,0.4)); }
+    }
+
+    .fade-in-scale { animation: fadeInScale 0.5s ease-out forwards; }
+    .pulse-logo { animation: pulse 2s infinite; }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center p-6">
+
+  <p id="todayDate" class="text-center text-gray-600 mb-4" style="color:white;"></p>
+
+  <div class="bg-white/90 rounded-2xl shadow-xl p-6 max-w-md w-full backdrop-blur" style="background-color: rgb(255, 245, 229);">
+    <div class="flex items-center gap-4 mb-4" style="gap: 1px; margin-bottom: 1px; margin-top: 1px;">
+      <!-- Logo -->
+      <img id="MEMOtransp" src="MEMOtransp.png" alt="Logo MEMO" class="w-32 h-32 fade-in-scale pulse-logo">
+
+      <!-- Boutons -->
+      <div class="flex flex-col flex-1 gap-2">
+        <button id="voiceBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-lg" style="padding: 8px;">
+          🎙️ Ajoute une tâche
+        </button>
+      </div>
+    </div>
+
+    <!-- Champ manuel -->
+    <div class="flex gap-2 mb-3">
+      <input id="manualTask" type="text" placeholder="✍️ Écrire une tâche..."
+        class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+      <button id="addManual" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 rounded-lg">➕</button>
+    </div>
+
+    <p id="status" class="text-sm text-gray-600 mt-2 text-center">
+      Dis : “arroser les plantes” ou écris ci-dessus
+    </p>
+
+    <p id="voiceErrorHelp" class="text-center text-sm text-red-600 mt-2 hidden">
+      ❌ Problème avec la reconnaissance vocale ?
+      <a href="tuto.html" class="text-blue-600 underline hover:text-blue-800">Voir le tutoriel</a>
+    </p>
+
+    <div id="taskList" class="space-y-2">
+      <div class="text-gray-400 text-center">Chargement...</div>
+    </div>
+  </div>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbx_qRpFyEMagjCBTLCYg-xsojIbkdciWc5vwuyQYwxZf2ioFT2TW00Vwelx9Dyx2lPLqw/exec";
+    const taskList = document.getElementById("taskList");
+    const status = document.getElementById("status");
+    const voiceBtn = document.getElementById("voiceBtn");
+    const manualInput = document.getElementById("manualTask");
+    const addManual = document.getElementById("addManual");
+    const voiceErrorHelp = document.getElementById("voiceErrorHelp");
+
+    document.getElementById("todayDate").textContent = new Date().toLocaleDateString('fr-FR', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    function speak(text) {
+      if (!("speechSynthesis" in window)) return;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "fr-FR";
+      utter.rate = 1;
+      window.speechSynthesis.speak(utter);
+    }
+
+    async function loadList() {
+      try {
+        const res = await fetch(scriptURL);
+        const data = await res.json();
+        taskList.innerHTML = "";
+
+        if (!data || data.length === 0) {
+          taskList.innerHTML = "<div class='text-gray-500 text-center'>Aucune tâche</div>";
+          return;
+        }
+
+        data.forEach(row => {
+          if (row.tache) {
+            const div = document.createElement("div");
+            div.className = "flex justify-between items-center p-2 rounded-lg task-item";
+
+            let bgColor = "#04785730";
+            let dateStr = "";
+            let diffDays = 0;
+
+            if (row.date) {
+              const dateObj = new Date(row.date);
+              if (!isNaN(dateObj)) {
+                const day = dateObj.getDate();
+                const month = dateObj.getMonth() + 1;
+                dateStr = `${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}`;
+                const today = new Date();
+                diffDays = Math.floor((today - dateObj) / (1000 * 60 * 60 * 24));
+                if (diffDays >= 3) bgColor = "#f8717130";
+                else if (diffDays >= 1) bgColor = "#fbbf2430";
+              }
+            }
+
+            div.style.backgroundColor = bgColor;
+            div.innerHTML = `
+              <span>◇ ${row.tache} <span class="text-gray-400 text-sm">(${dateStr})</span></span>
+              <button class="delete-btn text-red-600" data-id="${Number(row.id)}">🗑️</button>
+            `;
+            taskList.appendChild(div);
+          }
+        });
+
+        document.querySelectorAll(".delete-btn").forEach(btn => {
+          btn.addEventListener("click", async e => {
+            const id = Number(e.target.getAttribute("data-id"));
+            await deleteTask(id);
+          });
+        });
+
+      } catch (err) {
+        taskList.innerHTML = "<div class='text-red-500 text-center'>Erreur de chargement</div>";
+        console.error(err);
+      }
+    }
+
+    // 🎙️ Ajout vocal
+    voiceBtn.addEventListener("click", () => {
+      if (!("webkitSpeechRecognition" in window)) {
+        alert("La reconnaissance vocale n'est pas supportée sur ce navigateur (Chrome requis).");
+        return;
+      }
+
+      const rec = new webkitSpeechRecognition();
+      rec.lang = "fr-FR";
+      rec.start();
+      status.textContent = "🎧 J'écoute...";
+      voiceErrorHelp.classList.add("hidden");
+
+      rec.onresult = async ev => {
+        const phrase = ev.results[0][0].transcript;
+        status.textContent = "🗣️ " + phrase;
+        await addTask(phrase);
+      };
+
+      rec.onerror = () => {
+        status.textContent = "Erreur reconnaissance vocale";
+        voiceErrorHelp.classList.remove("hidden");
+      };
+    });
+
+    // ✍️ Ajout manuel
+    addManual.addEventListener("click", async () => {
+      const text = manualInput.value.trim();
+      if (text === "") return alert("Veuillez écrire une tâche.");
+      await addTask(text);
+      manualInput.value = "";
+    });
+
+    manualInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addManual.click();
+      }
+    });
+
+    // ✅ Fonction commune pour ajouter
+    async function addTask(phrase) {
+      try {
+        const res = await fetch(scriptURL, {
+          method: "POST",
+          body: JSON.stringify({ action: "add", tache: phrase })
+        });
+        const json = await res.json();
+        if (json.ok) {
+          speak("Tâche ajoutée");
+          loadList();
+        } else {
+          alert("Erreur serveur : " + (json.error || ""));
+        }
+      } catch (err) {
+        alert("Erreur réseau : " + err.message);
+      }
+    }
+
+    // 🗑️ Suppression
+    async function deleteTask(id) {
+      const itemDiv = document.querySelector(`.delete-btn[data-id="${id}"]`)?.closest("div");
+      if (!itemDiv) return;
+      itemDiv.classList.add("fade-out");
+
+      setTimeout(async () => {
+        try {
+          const res = await fetch(scriptURL, {
+            method: "POST",
+            body: JSON.stringify({ action: "delete", id: Number(id) })
+          });
+          const json = await res.json();
+          if (!json.ok) alert("Erreur serveur : " + (json.error || ""));
+          new Audio("recycle-bin.mp3").play();
+          loadList();
+        } catch (err) {
+          alert("Erreur réseau : " + err.message);
+        }
+      }, 400);
+    }
+
+    loadList();
+  </script>
+
+</body>
+</html>
