@@ -236,15 +236,16 @@
     
     // 📢 Bouton Lire
 readBtn.addEventListener("click", () => {
-  // Si la synthèse vocale est en cours, on l'arrête et enlève l'animation
+  // Si lecture en cours, stop
   if (window.speechSynthesis.speaking) {
     window.speechSynthesis.cancel();
     readBtn.classList.remove("active-read");
     return;
   }
 
+  // Récupérer uniquement le texte de la tâche, sans la date
   const tasks = Array.from(document.querySelectorAll("#taskList .task-item span:first-child"))
-                     .map(el => el.textContent.trim())
+                     .map(span => span.childNodes[0].nodeValue.trim())
                      .filter(t => t.length > 0);
 
   if (tasks.length === 0) {
@@ -255,18 +256,16 @@ readBtn.addEventListener("click", () => {
   // Ajouter animation
   readBtn.classList.add("active-read");
 
-  // Lecture
   const utter = new SpeechSynthesisUtterance("Voici vos tâches : " + tasks.join(", "));
   utter.lang = "fr-FR";
   utter.rate = 1;
-
-  // Quand la lecture se termine, enlever l'animation
   utter.onend = () => {
     readBtn.classList.remove("active-read");
   };
 
   window.speechSynthesis.speak(utter);
 });
+
 
 
     // ✍️ Ajout manuel
