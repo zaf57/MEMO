@@ -243,9 +243,15 @@ readBtn.addEventListener("click", () => {
     return;
   }
 
-  // Récupérer uniquement le texte de la tâche, sans la date
+  // Récupérer uniquement le texte direct du span, sans enfants
   const tasks = Array.from(document.querySelectorAll("#taskList .task-item span:first-child"))
-                     .map(span => span.childNodes[0].nodeValue.trim())
+                     .map(span => {
+                       // Texte direct = nodeValue des nœuds textuels uniquement
+                       return Array.from(span.childNodes)
+                                   .filter(n => n.nodeType === Node.TEXT_NODE) // seulement les nœuds texte
+                                   .map(n => n.nodeValue.trim())
+                                   .join(" "); // on concatène au cas où plusieurs
+                     })
                      .filter(t => t.length > 0);
 
   if (tasks.length === 0) {
@@ -253,7 +259,7 @@ readBtn.addEventListener("click", () => {
     return;
   }
 
-  // Ajouter animation
+  // Animation
   readBtn.classList.add("active-read");
 
   const utter = new SpeechSynthesisUtterance("Voici vos tâches : " + tasks.join(", "));
@@ -265,6 +271,7 @@ readBtn.addEventListener("click", () => {
 
   window.speechSynthesis.speak(utter);
 });
+
 
 
 
