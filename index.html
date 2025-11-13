@@ -26,6 +26,19 @@
       50% { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(16,185,129,0.4)); } 
     }
 
+    /* Animation pulsation */
+@keyframes pulseBtn {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+  50% { transform: scale(1.05); box-shadow: 0 0 10px rgba(16,185,129,0.5); }
+}
+
+.active-read {
+  animation: pulseBtn 1s infinite;
+  background-color: #10B981 !important; /* Vert émeraude pendant lecture */
+  color: white !important;
+}
+
+
     .fade-in-scale { animation: fadeInScale 0.5s ease-out forwards; }
     .pulse-logo { animation: pulse 2s infinite; }
 
@@ -222,13 +235,14 @@
     });
     
     // 📢 Bouton Lire
-  readBtn.addEventListener("click", () => {
-  // Si la synthèse vocale est en cours, on l'arrête
+readBtn.addEventListener("click", () => {
+  // Si la synthèse vocale est en cours, on l'arrête et enlève l'animation
   if (window.speechSynthesis.speaking) {
     window.speechSynthesis.cancel();
+    readBtn.classList.remove("active-read");
     return;
   }
-    
+
   const tasks = Array.from(document.querySelectorAll("#taskList .task-item span:first-child"))
                      .map(el => el.textContent.trim())
                      .filter(t => t.length > 0);
@@ -238,8 +252,22 @@
     return;
   }
 
-  speak("Voici vos tâches : " + tasks.join(", "));
+  // Ajouter animation
+  readBtn.classList.add("active-read");
+
+  // Lecture
+  const utter = new SpeechSynthesisUtterance("Voici vos tâches : " + tasks.join(", "));
+  utter.lang = "fr-FR";
+  utter.rate = 1;
+
+  // Quand la lecture se termine, enlever l'animation
+  utter.onend = () => {
+    readBtn.classList.remove("active-read");
+  };
+
+  window.speechSynthesis.speak(utter);
 });
+
 
     // ✍️ Ajout manuel
     addManual.addEventListener("click", async () => {
