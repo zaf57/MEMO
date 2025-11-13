@@ -62,14 +62,20 @@
 <div class="bg-white/90 rounded-2xl shadow-xl p-6 max-w-md w-full backdrop-blur" style="background-color: #ffffff00;--tw-shadow: space-between; padding-top: 2px;">
 
   <!-- Boutons -->
-  <div class="flex items-center gap-4 mb-4" style="gap: 1px; margin-bottom: 12px; margin-top: 1px;">
-      <div class="flex flex-col flex-1 gap-2">
-  <button id="voiceBtn" class="voice-btn" style="border-left-width: 0px;padding: 0px;margin-left: 0px;width: 261px;height: 40px;">
-    <img src="micro.svg" alt="Micro" class="icon">
+<!-- Boutons -->
+<div class="flex items-center gap-2 mb-4">
+  <!-- Bouton micro / ajouter une tâche -->
+  <button id="voiceBtn" class="voice-btn flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white">
+    <img src="micro.svg" alt="Micro" class="w-5 h-5">
     <span>Ajouter une tâche</span>
   </button>
+
+  <!-- Nouveau bouton lire 📢 -->
+  <button id="readBtn" class="read-btn flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 text-black">
+    Lire
+  </button>
 </div>
-      </div>
+
   
     <!-- Champ manuel -->
 <div class="flex gap-2 mb-3 items-center" style="margin-bottom: 1px;">
@@ -121,6 +127,7 @@
     const manualInput = document.getElementById("manualTask");
     const addManual = document.getElementById("addManual");
     const voiceErrorHelp = document.getElementById("voiceErrorHelp");
+    const readBtn = document.getElementById("readBtn");
 
     document.getElementById("todayDate").textContent = new Date().toLocaleDateString('fr-FR', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
@@ -133,6 +140,8 @@
       utter.rate = 1;
       window.speechSynthesis.speak(utter);
     }
+    
+
 
     async function loadList() {
       try {
@@ -213,6 +222,20 @@
         voiceErrorHelp.classList.remove("hidden");
       };
     });
+    
+    // 📢 Bouton Lire
+  readBtn.addEventListener("click", () => {
+  const tasks = Array.from(document.querySelectorAll("#taskList .task-item span:first-child"))
+                     .map(el => el.textContent.trim())
+                     .filter(t => t.length > 0);
+
+  if (tasks.length === 0) {
+    speak("Aucune tâche dans la liste.");
+    return;
+  }
+
+  speak("Voici vos tâches : " + tasks.join(", "));
+});
 
     // ✍️ Ajout manuel
     addManual.addEventListener("click", async () => {
