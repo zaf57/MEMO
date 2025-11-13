@@ -119,16 +119,26 @@ body {
   gap: 0rem;
 }
 
-/* Élément de tâche */
 .task-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 3px;
-  border-radius: 10px;
-  font-weight: 500;
-  font-size: 0.95rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
 }
+
+.task-text {
+  flex: 1; /* prend tout l’espace restant à gauche */
+}
+
+.task-date {
+  margin-left: 10px;
+  white-space: nowrap; /* empêche le retour à la ligne */
+  color: #9ca3af; /* gris clair */
+  font-size: 0.75rem;
+}
+
+
 
 /* Couleurs selon l’ancienneté */
 .task-recent {
