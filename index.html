@@ -189,9 +189,13 @@
 
             div.style.backgroundColor = bgColor;
             div.innerHTML = `
-              <span> ${row.tache} <span class="text-gray-400 text-sm">(${dateStr})</span></span>
-              <button class="delete-btn text-red-600 flex items-center justify-center" data-id="${Number(row.id)}"><img src="trash.svg" alt="Supprimer" class="trash-icon w-5 h-5 pointer-events-none"></button>
-            `;
+  <span class="task-text">${row.tache}</span>
+  <span class="task-date text-gray-400 text-sm">(${dateStr})</span>
+  <button class="delete-btn text-red-600 flex items-center justify-center" data-id="${Number(row.id)}">
+    <img src="trash.svg" alt="Supprimer" class="trash-icon w-5 h-5 pointer-events-none">
+  </button>
+`;
+
             taskList.appendChild(div);
           }
         });
@@ -236,22 +240,15 @@
     
     // 📢 Bouton Lire
 readBtn.addEventListener("click", () => {
-  // Si lecture en cours, stop
   if (window.speechSynthesis.speaking) {
     window.speechSynthesis.cancel();
     readBtn.classList.remove("active-read");
     return;
   }
 
-  // Récupérer uniquement le texte direct du span, sans enfants
-  const tasks = Array.from(document.querySelectorAll("#taskList .task-item span:first-child"))
-                     .map(span => {
-                       // Texte direct = nodeValue des nœuds textuels uniquement
-                       return Array.from(span.childNodes)
-                                   .filter(n => n.nodeType === Node.TEXT_NODE) // seulement les nœuds texte
-                                   .map(n => n.nodeValue.trim())
-                                   .join(" "); // on concatène au cas où plusieurs
-                     })
+  // Récupérer uniquement le texte de la tâche
+  const tasks = Array.from(document.querySelectorAll("#taskList .task-item .task-text"))
+                     .map(span => span.textContent.trim())
                      .filter(t => t.length > 0);
 
   if (tasks.length === 0) {
@@ -259,7 +256,6 @@ readBtn.addEventListener("click", () => {
     return;
   }
 
-  // Animation
   readBtn.classList.add("active-read");
 
   const utter = new SpeechSynthesisUtterance("Voici vos tâches : " + tasks.join(", "));
@@ -271,6 +267,7 @@ readBtn.addEventListener("click", () => {
 
   window.speechSynthesis.speak(utter);
 });
+
 
 
 
