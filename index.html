@@ -223,6 +223,12 @@
     
     // 📢 Bouton Lire
   readBtn.addEventListener("click", () => {
+  // Si la synthèse vocale est en cours, on l'arrête
+  if (window.speechSynthesis.speaking) {
+    window.speechSynthesis.cancel();
+    return;
+  }
+    
   const tasks = Array.from(document.querySelectorAll("#taskList .task-item span:first-child"))
                      .map(el => el.textContent.trim())
                      .filter(t => t.length > 0);
